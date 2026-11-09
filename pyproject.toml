@@ -1,0 +1,29 @@
+[project]
+name = "code-projet-5"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Cassiope.exe", email = "thomas.touffic@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.2",
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "pandas>=3.1.1",
+    "pillow>=13.0.0",
+    "pytest>=9.2.0",
+    "requests>=2.34.2",
+    "scikit-learn>=1.9.1",
+    "sqlalchemy>=2.1.8",
+    "tqdm>=4.70.1",
+]
+
+[project.scripts]
+code-projet-5 = "code_projet_5:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
