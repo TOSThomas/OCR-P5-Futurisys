@@ -4,11 +4,13 @@ from pydantic import BaseModel
 from pathlib import Path
 import joblib
 import pandas as pd
+import json
+from app.bdd import SessionLocal, Prediction
 
 app = FastAPI(
     title="Futurisys ML API",
     description="Projet 5 OCR - API de classification automatique basée sur le modèle du Projet 4.",
-    version="1.1.0",
+    version="1.2.0",
 )
 
 MODEL_PATH = Path(__file__).resolve().parent / "model.joblib"
@@ -89,7 +91,7 @@ def health_check():
 
 @app.post("/predict")
 def predict(employee: EmployeeData):
-
+    
     input_data = pd.DataFrame([employee.model_dump()])
 
     input_data["ratio_anciennete_experience"] = (
@@ -112,15 +114,42 @@ def predict(employee: EmployeeData):
     input_data = input_data[model.feature_names_in_]
     prediction = int(model.predict(input_data)[0])
     proba = model.predict_proba(input_data)[0]
+
     proba_depart = float(proba[1])
+    proba_reste = float(proba[0])
+
+    employee_data = json.loads(
+        input_data.to_json(orient="records")
+    )[0]
+    db = SessionLocal()
+
+    try:
+        new_prediction = Prediction(
+            prediction=prediction,
+            probabilite_depart=proba_depart,
+            probabilite_rester=proba_reste,
+            donnees_salarie=employee_data
+        )
+
+        db.add(new_prediction)
+        db.commit()
+        db.refresh(new_prediction)
+        prediction_id = new_prediction.id
+
+    except Exception:
+        db.rollback()
+        raise
+
+    finally:
+        db.close()
 
     return {
+        "id_prediction": prediction_id,
         "prediction": prediction,
         "resultat": (
-            "Risque de départ élevé"
-            if prediction == 1
+            "Risque de départ élevé" if prediction == 1
             else "Risque de départ faible"
         ),
         "probabilite_depart": round(proba_depart, 4),
-        "probabilite_rester": round(float(proba[0]), 4)
+        "probabilite_rester": round(proba_reste, 4)
     }
