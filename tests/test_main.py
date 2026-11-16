@@ -27,9 +27,6 @@ TEST_EMPLOYE = {
     "frequence_deplacement": "Occasionnel",
     "annees_depuis_la_derniere_promotion": 1,
     "annes_sous_responsable_actuel": 2,
-    "ratio_anciennete_experience": 0.5,
-    "ratio_evolution_poste": 0.3,
-    "score_satisfaction_global": 3,
     "genre": "M",
     "statut_marital": "Marié(e)",
     "departement": "Consulting",
@@ -67,7 +64,6 @@ def test_predict_erreur_cat():
     response = client.post("/predict", json=employee)
     assert response.status_code == 422
 
-
 def test_predict_erreur_champ():
     employee = TEST_EMPLOYE.copy()
     del employee["age"]
@@ -75,10 +71,20 @@ def test_predict_erreur_champ():
     response = client.post("/predict", json=employee)
     assert response.status_code == 422
 
-
 def test_predict_erreur_num():
     employee = TEST_EMPLOYE.copy()
     employee["age"] = "trente-cinq"
 
     response = client.post("/predict", json=employee)
     assert response.status_code == 422
+
+def test_predict_division_0():
+    employee = TEST_EMPLOYE.copy()
+
+    employee["annee_experience_totale"] = 0
+    employee["annees_dans_l_entreprise"] = 0
+    employee["annees_depuis_la_derniere_promotion"] = 0
+
+    response = client.post("/predict", json=employee)
+
+    assert response.status_code == 200

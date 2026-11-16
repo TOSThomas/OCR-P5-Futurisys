@@ -39,9 +39,6 @@ class EmployeeData(BaseModel):
     niveau_education: float
     annees_depuis_la_derniere_promotion: float
     annes_sous_responsable_actuel: float
-    ratio_anciennete_experience: float
-    ratio_evolution_poste: float
-    score_satisfaction_global: float
 
     # cat
     genre: Literal["F", "M"]
@@ -93,7 +90,26 @@ def health_check():
 @app.post("/predict")
 def predict(employee: EmployeeData):
 
-    input_data = pd.DataFrame([employee.model_dump()], columns=model.feature_names_in_)
+    input_data = pd.DataFrame([employee.model_dump()])
+
+    input_data["ratio_anciennete_experience"] = (
+        input_data["annees_dans_l_entreprise"]
+        / input_data["annee_experience_totale"].replace(0, float("nan"))
+    ).fillna(0)
+
+    input_data["ratio_evolution_poste"] = (
+        input_data["annees_depuis_la_derniere_promotion"]
+        / input_data["annees_dans_l_entreprise"].replace(0, float("nan"))
+    ).fillna(0)
+
+    input_data["score_satisfaction_global"] = input_data[[
+        "satisfaction_employee_environnement",
+        "satisfaction_employee_nature_travail",
+        "satisfaction_employee_equipe",
+        "satisfaction_employee_equilibre_pro_perso"
+    ]].mean(axis=1)
+
+    input_data = input_data[model.feature_names_in_]
     prediction = int(model.predict(input_data)[0])
     proba = model.predict_proba(input_data)[0]
     proba_depart = float(proba[1])
