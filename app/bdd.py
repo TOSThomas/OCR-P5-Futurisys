@@ -1,8 +1,9 @@
-
 import os
+from datetime import datetime
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text, inspect
+from sqlalchemy import (create_engine, text, inspect, Integer, Float, DateTime, JSON, func)
 from sqlalchemy.engine import URL
+from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column, sessionmaker)
 
 load_dotenv()
 
@@ -12,7 +13,6 @@ host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 database = os.getenv("DB_NAME")
 
-# Je vérifie que la base existe, sinon je la crée
 url_projet = URL.create(
     "postgresql+psycopg2",
     username=user,
@@ -38,6 +38,53 @@ except Exception:
     
     with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         conn.execute(text(f'CREATE DATABASE "{database}"'))
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False
+)
+
+class Base(DeclarativeBase):
+    pass
+
+class Prediction(Base):
+    __tablename__ = "predictions"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    date_prediction: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+
+    prediction: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    probabilite_depart: Mapped[float] = mapped_column(
+        Float,
+        nullable=False
+    )
+
+    probabilite_rester: Mapped[float] = mapped_column(
+        Float,
+        nullable=False
+    )
+
+    donnees_salarie: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False
+    )
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
 
 def test_connection():
     with engine.connect() as connection:
