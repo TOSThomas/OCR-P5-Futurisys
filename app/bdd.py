@@ -12,6 +12,7 @@ password = os.getenv("DB_PASSWORD")
 host = os.getenv("DB_HOST")
 port = os.getenv("DB_PORT")
 database = os.getenv("DB_NAME")
+sslmode = os.getenv("DB_SSLMODE", "prefer")
 
 url_projet = URL.create(
     "postgresql+psycopg2",
@@ -20,7 +21,7 @@ url_projet = URL.create(
     host=host,
     port=int(port) if port else 5432,
     database=database,
-    query={"sslmode": "require"},
+    query={"sslmode": sslmode},
 )
 
 engine = create_engine(
@@ -83,7 +84,7 @@ def create_database_if_not_exists():
         host=host,
         port=int(port) if port else 5432,
         database="postgres",
-        query={"sslmode": "require"},
+        query={"sslmode": sslmode},
     )
 
     admin_engine = create_engine(
