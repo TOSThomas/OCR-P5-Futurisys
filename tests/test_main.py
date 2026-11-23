@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -55,7 +56,7 @@ def test_predict_success():
     ]
     assert 0 <= data["probabilite_depart"] <= 1
     assert 0 <= data["probabilite_rester"] <= 1
-    assert (data["probabilite_depart"] + data["probabilite_rester"]) == 1.0
+    assert (data["probabilite_depart"] + data["probabilite_rester"]) == pytest.approx(1.0, abs=0.0001)
 
 def test_predict_erreur_cat():
     employee = TEST_EMPLOYE.copy()
@@ -80,11 +81,9 @@ def test_predict_erreur_num():
 
 def test_predict_division_0():
     employee = TEST_EMPLOYE.copy()
-
     employee["annee_experience_totale"] = 0
     employee["annees_dans_l_entreprise"] = 0
     employee["annees_depuis_la_derniere_promotion"] = 0
 
     response = client.post("/predict", json=employee)
-
     assert response.status_code == 200
