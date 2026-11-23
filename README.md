@@ -6,7 +6,7 @@
   <p align="center">
     Déploiement d'une API de prédiction du risque de départ
     <br />
-    <a href="https://github.com/TOSThomas/OCR-P5-Futurisys"><strong>Explore »</strong>
+    <a href="https://github.com/TOSThomas/OCR-P5-Futurisys"><strong>Explore »</strong></a>
   </p>
 </div>
 
@@ -74,7 +74,7 @@ uv sync --locked
 Créer le fichier `.env` à la racine du projet.
 Compléter le fichier à l'aide du `.env.exemple`.
 
-Une instance PostgreSQL doit être accessible.
+Hébergeur utilisé : Neon
 
 ## Lancement de l'application
 
@@ -136,6 +136,18 @@ Générer un rapport HTML :
 ```bash
 uv run python -m pytest --cov=app --cov-report=html
 ```
+## Besoins analytique 
+
+- Cohérence des données : les données transmises doivent respecter le format et les caractéristiques attendus par le modèle.
+- Prétraitement identique : les transformations appliquées aux données en production doivent être conformes à celles utilisées lors de l'entraînement.
+- Traçabilité : chaque prédiction doit pouvoir être identifiée et enregistrée en base de données.
+
+### Finalité du projet
+L'API Futurisys doit être accessible au travers d'un service web.
+
+Il s'agirait d'une interface entre le modèle de régression logistique et les applications métier, permettant d'intégrer les prédictions dans un processus d'analyse RH.
+
+De ce fait, un tableau de bord et des visuels graphiques sont nécessaires, ainsi qu'un accès aux entrées en base.
 
 ## Documentation technique
 

@@ -20,6 +20,7 @@ url_projet = URL.create(
     host=host,
     port=int(port) if port else 5432,
     database=database,
+    query={"sslmode": "require"},
 )
 
 engine = create_engine(
@@ -82,6 +83,7 @@ def create_database_if_not_exists():
         host=host,
         port=int(port) if port else 5432,
         database="postgres",
+        query={"sslmode": "require"},
     )
 
     admin_engine = create_engine(
