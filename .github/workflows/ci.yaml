@@ -18,6 +18,7 @@ jobs:
       DB_HOST: localhost
       DB_PORT: 5432
       DB_NAME: futurisys
+      DB_SSLMODE: prefer
 
     services:
       postgres:
